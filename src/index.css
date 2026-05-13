@@ -1,30 +1,48 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Outfit", sans-serif;
   
-  --color-primary-50: #eef2ff;
-  --color-primary-100: #e0e7ff;
-  --color-primary-200: #c7d2fe;
-  --color-primary-300: #a5b4fc;
-  --color-primary-400: #818cf8;
-  --color-primary-500: #6366f1;
-  --color-primary-600: #4f46e5;
-  --color-primary-700: #4338ca;
-  --color-primary-800: #3730a3;
-  --color-primary-900: #312e81;
+  --color-brand-50: #f4f5ff;
+  --color-brand-100: #e9ebff;
+  --color-brand-200: #d2d6ff;
+  --color-brand-300: #adb5ff;
+  --color-brand-400: #818cf8;
+  --color-brand-500: #6366f1;
+  --color-brand-600: #4f46e5;
+  --color-brand-700: #4338ca;
+  --color-brand-800: #3730a3;
+  --color-brand-900: #312e81;
 }
 
-body {
-  @apply bg-[#FDFDFF] dark:bg-[#0B0F1A] antialiased text-slate-900 dark:text-slate-100 transition-colors duration-500;
+@layer base {
+  body {
+    @apply bg-[#F9FBFF] dark:bg-[#080B13] antialiased text-slate-900 dark:text-slate-100 transition-colors duration-700 select-none touch-manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
 }
 
-* {
-  @apply transition-colors duration-300;
-}
+@layer utilities {
+  .glass {
+    @apply bg-white/70 dark:bg-slate-900/40 backdrop-blur-xl border border-white/20 dark:border-white/5;
+  }
+  
+  .glass-dark {
+    @apply bg-slate-950/80 dark:bg-black/80 backdrop-blur-2xl border border-white/10;
+  }
 
-::-webkit-scrollbar {
-  display: none;
+  .shadow-premium {
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05);
+  }
+  
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }

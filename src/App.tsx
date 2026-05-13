@@ -24,6 +24,11 @@ import {
   Church,
   Book,
   Download,
+  Share2,
+  Twitter,
+  Facebook,
+  MessageCircle,
+  MessageSquare,
   ChevronRight,
   Loader2,
   Trash2,
@@ -31,11 +36,9 @@ import {
   Plus,
   Moon,
   Sun,
-  Share2,
   Users,
   UserPlus,
   Search,
-  MessageSquare,
   Sparkles,
   RefreshCw,
   Camera,
@@ -155,7 +158,7 @@ interface Member {
   ministry: string;
   role: string;
   avatar?: string;
-  attendanceStatus: 'active' | 'inactive' | 'on-leave';
+  attendanceStatus: 'active' | 'inactive' | 'on-leave' | 'pending';
   joinDate: string;
 }
 
@@ -1436,65 +1439,101 @@ const BiblePage = ({ initialReference }: { initialReference?: string }) => {
     <div className="space-y-6 flex flex-col h-[75vh]">
       <div className="flex items-center justify-between px-2">
         <div className="flex items-center gap-2">
-          <div className="w-1.5 h-6 bg-indigo-600 rounded-full" />
-          <h2 className="text-xl font-extrabold text-slate-900 dark:text-white font-display">Holy Bible</h2>
+          <div className="w-2 h-8 bg-gradient-to-b from-indigo-600 to-purple-600 rounded-full" />
+          <h2 className="text-2xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 font-display">Holy Scriptures</h2>
         </div>
       </div>
 
-      <form onSubmit={handleSearch} className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-        <input 
-          value={inputRef}
-          onChange={(e) => setInputRef(e.target.value)}
-          placeholder="Search Reference (e.g. Psalm 23)"
-          className="w-full pl-11 pr-4 py-4 glass rounded-2xl border-white/60 dark:border-white/10 text-sm font-medium focus:outline-none"
-        />
-        <button type="submit" className="hidden" />
+      <form onSubmit={handleSearch} className="relative group">
+        <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 rounded-2xl blur-xl transition-all group-focus-within:blur-2xl" />
+        <div className="relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-indigo-500" />
+          <input 
+            value={inputRef}
+            onChange={(e) => setInputRef(e.target.value)}
+            placeholder="Search Reference (e.g. Psalm 23)"
+            className="w-full pl-11 pr-12 py-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl border border-indigo-100 dark:border-white/10 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-sm"
+          />
+          <button 
+            type="submit" 
+            className="absolute right-2 top-1/2 -translate-y-1/2 bg-indigo-600 text-white p-2.5 rounded-xl active:scale-95 transition-transform hover:shadow-lg hover:shadow-indigo-600/30"
+          >
+            <Search className="w-4 h-4" />
+          </button>
+        </div>
       </form>
 
-      <div className="flex-grow glass rounded-[2.5rem] shadow-premium overflow-y-auto no-scrollbar relative flex flex-col">
+      <div className="flex-grow bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl overflow-y-auto no-scrollbar relative flex flex-col border border-indigo-50 dark:border-white/5">
+        <div className="absolute top-0 inset-x-0 h-40 bg-gradient-to-b from-indigo-50/50 dark:from-indigo-950/20 to-transparent pointer-events-none" />
+        
         {loading ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center space-y-4">
-            <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
-            <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Opening the Word...</p>
+            <div className="relative">
+              <div className="absolute -inset-4 bg-indigo-600/20 blur-2xl animate-pulse rounded-full" />
+              <Loader2 className="w-10 h-10 animate-spin text-indigo-600 relative z-10" />
+            </div>
+            <p className="text-[10px] font-extrabold uppercase tracking-widest text-indigo-600 animate-pulse">Illuminating the Word...</p>
           </div>
         ) : error ? (
-          <div className="p-10 text-center space-y-4">
-             <Info className="w-12 h-12 text-amber-500 mx-auto opacity-50" />
-             <p className="text-sm font-medium text-slate-500">{error}</p>
+          <div className="p-10 text-center space-y-4 flex flex-col items-center justify-center h-full">
+             <div className="w-16 h-16 bg-amber-50 dark:bg-amber-900/20 rounded-2xl flex items-center justify-center mb-2">
+               <Info className="w-8 h-8 text-amber-500" />
+             </div>
+             <p className="text-sm font-bold text-slate-600 dark:text-slate-400 max-w-[200px] text-center">{error}</p>
           </div>
         ) : passage ? (
           <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="p-8 space-y-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="relative p-8 pt-10"
           >
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-white/5 pb-4 mb-2">
-               <h3 className="text-lg font-extrabold text-slate-900 dark:text-white font-display">{passage.reference}</h3>
-               <span className="text-[9px] font-extrabold uppercase bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 px-2 py-1 rounded-md">WEB Version</span>
+            <div className="flex flex-col mb-8">
+               <span className="text-[10px] font-extrabold text-indigo-600 uppercase tracking-[0.3em] mb-1">Passage Reference</span>
+               <h3 className="text-3xl font-black text-slate-900 dark:text-white font-display tracking-tight">{passage.reference}</h3>
+               <div className="flex items-center gap-2 mt-3">
+                  <span className="px-3 py-1 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full text-[9px] font-black uppercase tracking-widest shadow-lg shadow-indigo-600/20">WEB Version</span>
+                  <div className="h-4 w-[1px] bg-slate-200 dark:bg-white/10" />
+                  <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Public Domain</span>
+               </div>
             </div>
-            <div className="space-y-4">
+
+            <div className="space-y-6 relative">
+              <div className="absolute -left-6 top-0 bottom-0 w-1 bg-gradient-to-b from-indigo-500 to-transparent rounded-full opacity-20" />
               {passage.text.split('\n').filter(Boolean).map((para, i) => (
-                <p key={i} className="text-slate-700 dark:text-slate-300 leading-[1.8] font-serif text-[17px]">
+                <p key={i} className="text-slate-700 dark:text-slate-300 leading-[1.8] font-serif text-[19px] first-letter:text-4xl first-letter:font-black first-letter:text-indigo-600 first-letter:mr-2 first-letter:float-left">
                   {para}
                 </p>
               ))}
             </div>
-            <div className="pt-8 flex justify-center">
-               <div className="w-12 h-1 bg-slate-100 dark:bg-white/5 rounded-full" />
+
+            <div className="mt-12 py-8 border-t border-slate-100 dark:border-white/5 flex flex-col items-center gap-4">
+               <div className="flex gap-1">
+                 {[1,2,3].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-indigo-200 dark:bg-slate-800" />)}
+               </div>
+               <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.4em]">End of Passage</p>
             </div>
           </motion.div>
         ) : null}
       </div>
 
-      <div className="flex gap-3">
-         {['John 3', 'Psalm 23', 'Romans 8', 'Hebrews 11'].map(suggest => (
+      <div className="flex gap-2 p-1 overflow-x-auto no-scrollbar pb-2">
+         {[
+           { ref: 'John 3', color: 'indigo' },
+           { ref: 'Psalm 23', color: 'amber' },
+           { ref: 'Romans 8', color: 'emerald' },
+           { ref: 'Hebrews 11', color: 'rose' }
+         ].map(suggest => (
             <button 
-              key={suggest}
-              onClick={() => { setInputRef(suggest); fetchBible(suggest); }}
-              className="flex-1 py-3 glass rounded-xl text-[10px] font-bold text-slate-400 hover:text-indigo-600 transition-colors uppercase tracking-widest"
+              key={suggest.ref}
+              onClick={() => { setInputRef(suggest.ref); fetchBible(suggest.ref); }}
+              className={`whitespace-nowrap px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 flex-shrink-0 border
+                ${suggest.color === 'indigo' ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 border-indigo-100 dark:border-indigo-500/20' : ''}
+                ${suggest.color === 'amber' ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 border-amber-100 dark:border-amber-500/20' : ''}
+                ${suggest.color === 'emerald' ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 border-emerald-100 dark:border-emerald-500/20' : ''}
+                ${suggest.color === 'rose' ? 'bg-rose-50 dark:bg-rose-900/20 text-rose-600 border-rose-100 dark:border-rose-500/20' : ''}
+              `}
             >
-              {suggest}
+              {suggest.ref}
             </button>
          ))}
       </div>
@@ -1717,7 +1756,7 @@ const ContactPage = ({ settings }: { settings: ChurchSettings }) => {
       id: Date.now().toString(),
       ...formData,
       role: 'Member',
-      attendanceStatus: 'active',
+      attendanceStatus: 'pending',
       joinDate: new Date().toLocaleDateString()
     };
     
@@ -1725,6 +1764,15 @@ const ContactPage = ({ settings }: { settings: ChurchSettings }) => {
     const members = saved ? JSON.parse(saved) : [];
     localStorage.setItem('church_members', JSON.stringify([newMember, ...members]));
     
+    // Automatically generate a mailto link for registration notification
+    const subject = encodeURIComponent(`New Membership Application: ${formData.name}`);
+    const body = encodeURIComponent(`Shalom!\n\nA new member has registered through the church app and is awaiting approval.\n\nDetails:\n- Name: ${formData.name}\n- Ministry: ${formData.ministry}\n- Phone: ${formData.phone}\n- Email: ${formData.email}\n\nYou can review and accept this application in the Admin Console.\n\nGod Bless!`);
+    
+    // We attempt to open the mail client after a short delay so the UI feedback stays visible
+    setTimeout(() => {
+      window.location.href = `mailto:${settings.email}?subject=${subject}&body=${body}`;
+    }, 1500);
+
     setSubmitted(true);
     if ('vibrate' in navigator) navigator.vibrate([20, 40, 20]);
     setTimeout(() => {
@@ -2473,6 +2521,14 @@ const ContactPage = ({ settings }: { settings: ChurchSettings }) => {
                   </div>
 
                   <div className="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {m.attendanceStatus === 'pending' && (
+                       <button 
+                       onClick={() => upsertMember({ ...m, attendanceStatus: 'active' })}
+                       className="text-[10px] font-extrabold text-emerald-600 uppercase tracking-widest hover:bg-emerald-50 dark:hover:bg-emerald-900/20 px-3 py-1.5 rounded-lg transition-all"
+                     >
+                       Approve Access
+                     </button>
+                    )}
                     <button 
                       onClick={() => { setEditingMember(m); setShowMemberModal(true); }}
                       className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest hover:bg-indigo-50 dark:hover:bg-indigo-900/20 px-3 py-1.5 rounded-lg transition-all"
@@ -2551,18 +2607,36 @@ const ContactPage = ({ settings }: { settings: ChurchSettings }) => {
                           whileTap={{ scale: 0.98 }}
                           onClick={() => {
                             const input = document.getElementById('invite-recipient') as HTMLInputElement;
-                            if (input.value) {
+                            const recipient = input.value.trim();
+                            if (recipient) {
+                              const subject = encodeURIComponent(`Invitation to join ${settings.name}`);
+                              const inviteLink = window.location.origin;
+                              const body = encodeURIComponent(`Shalom!\n\nWe would love to have you as part of our digital fellowship at ${settings.name}. Stay connected with our latest sermons, news, and prayer wall.\n\nJoin us here: ${inviteLink}\n\nWe look forward to seeing you in our community!\n\nGod Bless!`);
+                              
+                              if (recipient.includes('@')) {
+                                window.location.href = `mailto:${recipient}?subject=${subject}&body=${body}`;
+                              } else if (navigator.share) {
+                                navigator.share({
+                                  title: `Join ${settings.name}`,
+                                  text: `Shalom! Join our church digital fellowship.`,
+                                  url: inviteLink
+                                }).catch(err => console.log('Share failed', err));
+                              } else {
+                                navigator.clipboard.writeText(`Join our church app: ${inviteLink}`);
+                                alert("Invitation link copied to clipboard!");
+                              }
+
                               addNotification({
                                 type: 'system',
-                                title: 'Invitation Sent',
-                                message: `Divine invitation dispatched to ${input.value} successfully.`
+                                title: 'Invitation Prepared',
+                                message: `Divine invitation dispatched for ${recipient} via your system mailer.`
                               });
                               setShowInviteModal(false);
                             } else {
-                              alert("Please enter a contact address.");
+                              alert("Please enter a valid email or phone number.");
                             }
                           }}
-                          className="w-full bg-amber-500 text-white py-5 rounded-[1.5rem] font-extrabold shadow-xl shadow-amber-500/20 flex items-center justify-center gap-3"
+                          className="w-full bg-amber-500 text-white py-5 rounded-[1.5rem] font-extrabold shadow-xl shadow-amber-500/20 flex items-center justify-center gap-3 hover:translate-y-[-2px] transition-transform"
                         >
                           Send Invitation <Send className="w-4 h-4" />
                         </motion.button>
@@ -2681,11 +2755,11 @@ const ContactPage = ({ settings }: { settings: ChurchSettings }) => {
                            <div className="space-y-2">
                               <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest ml-1">Status</label>
                               <div className="flex gap-2">
-                                 {['active', 'inactive', 'on-leave'].map(s => (
+                                 {['active', 'inactive', 'on-leave', 'pending'].map(s => (
                                    <label key={s} className="flex-1">
                                       <input type="radio" name="attendanceStatus" value={s} defaultChecked={(editingMember?.attendanceStatus || 'active') === s} className="hidden peer" />
-                                      <div className="w-full py-2.5 rounded-xl border border-slate-200 dark:border-white/5 text-center text-[10px] font-extrabold uppercase tracking-widest cursor-pointer peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:border-indigo-600 transition-all">
-                                         {s}
+                                      <div className="w-full py-2.5 rounded-xl border border-slate-200 dark:border-white/5 text-center text-[10px] font-extrabold uppercase tracking-widest cursor-pointer peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:border-indigo-600 transition-all transition-colors">
+                                         {s === 'pending' ? 'Review' : s}
                                       </div>
                                    </label>
                                  ))}
@@ -3107,6 +3181,66 @@ export default function App() {
                         setActiveTab('bible');
                       }} 
                     />
+                    <div className="space-y-4">
+                       <div className="px-6">
+                         <h3 className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.2em] mb-4">Spread the Word</h3>
+                         <div className="grid grid-cols-4 gap-3">
+                            <button 
+                              onClick={() => {
+                                const text = encodeURIComponent(`Join us at ${settings.name}! Fellowship with us digitally: ${window.location.origin}`);
+                                window.open(`https://wa.me/?text=${text}`, '_blank');
+                              }}
+                              className="flex flex-col items-center justify-center p-4 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 rounded-3xl group active:scale-90 transition-all border border-emerald-100 dark:border-emerald-500/10"
+                            >
+                              <MessageCircle className="w-5 h-5 mb-1" />
+                              <span className="text-[8px] font-bold uppercase tracking-wider">WhatsApp</span>
+                            </button>
+
+                            <button 
+                              onClick={() => {
+                                const text = encodeURIComponent(`Come fellowship with us at ${settings.name}!`);
+                                const url = encodeURIComponent(window.location.origin);
+                                window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+                              }}
+                              className="flex flex-col items-center justify-center p-4 bg-sky-50 dark:bg-sky-900/20 text-sky-600 rounded-3xl group active:scale-90 transition-all border border-sky-100 dark:border-sky-500/10"
+                            >
+                              <Twitter className="w-5 h-5 mb-1" />
+                              <span className="text-[8px] font-bold uppercase tracking-wider">Twitter</span>
+                            </button>
+
+                            <button 
+                              onClick={() => {
+                                const url = encodeURIComponent(window.location.origin);
+                                window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+                              }}
+                              className="flex flex-col items-center justify-center p-4 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-3xl group active:scale-90 transition-all border border-blue-100 dark:border-blue-500/10"
+                            >
+                              <Facebook className="w-5 h-5 mb-1" />
+                              <span className="text-[8px] font-bold uppercase tracking-wider">Facebook</span>
+                            </button>
+
+                            <button 
+                              onClick={() => {
+                                if (navigator.share) {
+                                  navigator.share({
+                                    title: settings.name,
+                                    text: `Join our church digital community.`,
+                                    url: window.location.origin
+                                  });
+                                } else {
+                                  const subject = encodeURIComponent(`Join us at ${settings.name}`);
+                                  const body = encodeURIComponent(`Shalom! Come and fellowship with us: ${window.location.origin}`);
+                                  window.location.href = `mailto:?subject=${subject}&body=${body}`;
+                                }
+                              }}
+                              className="flex flex-col items-center justify-center p-4 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 rounded-3xl group active:scale-90 transition-all border border-indigo-100 dark:border-indigo-500/10"
+                            >
+                              <Share2 className="w-5 h-5 mb-1" />
+                              <span className="text-[8px] font-bold uppercase tracking-wider">More</span>
+                            </button>
+                         </div>
+                       </div>
+                    </div>
                     {!isInstallable && (
                        <button 
                        onClick={handleInstall}
@@ -3133,6 +3267,17 @@ export default function App() {
                 )}
               </motion.div>
             </AnimatePresence>
+
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1 }}
+              className="mt-12 mb-8 text-center"
+            >
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-200/50 dark:bg-white/5 rounded-full">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Powered by Dior</span>
+              </div>
+            </motion.div>
           </main>
 
           {/* Floating Action Button (FAB) for Home */}

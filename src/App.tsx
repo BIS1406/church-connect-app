@@ -23,6 +23,7 @@ import {
   Mail,
   Church,
   Book,
+  Download,
   ChevronRight,
   Loader2,
   Trash2,
@@ -198,7 +199,7 @@ interface ChurchSettings {
 }
 
 const DEFAULT_SETTINGS: ChurchSettings = {
-  name: 'Grace Fellowship Church',
+  name: 'Easy service',
   logoUrl: '',
   pastor: 'Pastor John Doe',
   phone: '(555) 123-4567',
@@ -823,39 +824,37 @@ const HomePage = ({ settings, onViewFull }: { settings: ChurchSettings, onViewFu
       initial={{ scale: 0.95, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-      className="relative h-64 w-full bg-slate-950 rounded-[3rem] overflow-hidden shadow-2xl border border-white/5"
+      className="relative h-72 w-full bg-slate-900 rounded-[3rem] overflow-hidden shadow-2xl border border-white/5"
     >
-      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent z-10" />
-      <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1438232992991-995b7058bbb3?auto=format&fit=crop&q=80&w=2000')] bg-cover bg-center opacity-70 group-hover:scale-105 transition-transform duration-1000" />
+      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/40 to-transparent z-10" />
+      <div className="absolute inset-0 opacity-40">
+        <div className="absolute inset-0 bg-indigo-600 mix-blend-overlay" />
+        <img 
+          src="https://images.unsplash.com/photo-1548625361-1d5462cfdd69?auto=format&fit=crop&q=80&w=1000" 
+          className="w-full h-full object-cover"
+          alt="church background"
+        />
+      </div>
       
-      <div className="absolute top-8 right-8 z-20">
-        {settings.logoUrl && (
-          <motion.img 
-            initial={{ scale: 0, rotate: -15 }}
-            animate={{ scale: 1, rotate: 0 }}
-            src={settings.logoUrl} 
-            className="w-16 h-16 rounded-2xl border-4 border-white/20 shadow-2xl backdrop-blur-xl object-cover"
-            alt="church logo"
-          />
-        )}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center">
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="w-24 h-24 bg-white/10 backdrop-blur-2xl rounded-[2rem] border border-white/20 p-4 shadow-3xl mb-4 group"
+        >
+          <img src="/icon.svg" className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500" alt="Logo" />
+        </motion.div>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 p-8 z-20">
+      <div className="absolute bottom-0 left-0 right-0 p-8 z-20 text-center">
         <motion.div
            initial={{ opacity: 0, y: 10 }}
            animate={{ opacity: 1, y: 0 }}
-           transition={{ delay: 0.3 }}
+           transition={{ delay: 0.4 }}
         >
-          <span className="px-3 py-1 bg-indigo-600/20 backdrop-blur-md rounded-full text-indigo-400 font-bold text-[9px] uppercase tracking-[0.2em] border border-indigo-400/20 mb-3 inline-block">
-            Faith In Action
-          </span>
-          <h2 className="text-3xl font-extrabold text-white tracking-tight font-display leading-[1.1]">
-            {settings.name}
-          </h2>
-          <div className="flex items-center gap-2 mt-2 opacity-60">
-             <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-pulse" />
-             <p className="text-[10px] text-white font-bold uppercase tracking-widest leading-none">Online & In-Person</p>
-          </div>
+          <h1 className="text-3xl font-extrabold text-white font-display tracking-tight mb-1">{settings.name}</h1>
+          <p className="text-indigo-200/60 text-[10px] font-bold uppercase tracking-[0.3em]">{settings.address}</p>
         </motion.div>
       </div>
     </motion.div>
@@ -2879,6 +2878,40 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>('home');
   const [bibleRef, setBibleRef] = useState('John 3:16');
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isInstallable, setIsInstallable] = useState(false);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setIsInstallable(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstall = async () => {
+    if (!deferredPrompt) {
+      // If no prompt, maybe they're on iOS or already installed
+      addNotification({
+        title: "Installation Guide",
+        message: "To install: Tap the 'Share' icon in your browser menu and select 'Add to Home Screen'.",
+        type: 'system'
+      });
+      return;
+    }
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setIsInstallable(false);
+      setDeferredPrompt(null);
+    }
+  };
 
   useEffect(() => {
     registerSW({
@@ -3043,13 +3076,47 @@ export default function App() {
                 className="min-h-[70vh]"
               >
                 {activeTab === 'home' && (
-                  <HomePage 
-                    settings={settings} 
-                    onViewFull={(ref) => {
-                      setBibleRef(ref);
-                      setActiveTab('bible');
-                    }} 
-                  />
+                  <div className="space-y-6">
+                    {isInstallable && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="bg-indigo-600 p-6 rounded-[2rem] shadow-xl shadow-indigo-600/20 text-white flex items-center justify-between"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
+                            <Download className="w-6 h-6" />
+                          </div>
+                          <div>
+                            <h3 className="font-extrabold text-sm font-display">Install App</h3>
+                            <p className="text-[10px] font-bold text-indigo-100 uppercase tracking-widest mt-0.5">Offline Access & Fast Loading</p>
+                          </div>
+                        </div>
+                        <button 
+                          onClick={handleInstall}
+                          className="bg-white text-indigo-600 px-5 py-2.5 rounded-xl text-[10px] font-extrabold uppercase tracking-widest shadow-lg active:scale-95 transition-all"
+                        >
+                          Install
+                        </button>
+                      </motion.div>
+                    )}
+                    <HomePage 
+                      settings={settings} 
+                      onViewFull={(ref) => {
+                        setBibleRef(ref);
+                        setActiveTab('bible');
+                      }} 
+                    />
+                    {!isInstallable && (
+                       <button 
+                       onClick={handleInstall}
+                       className="w-full glass p-5 rounded-[2rem] border-white/60 dark:border-white/10 flex items-center justify-center gap-3 text-slate-400 hover:text-indigo-600 transition-colors"
+                     >
+                       <Download className="w-4 h-4" />
+                       <span className="text-[10px] font-extrabold uppercase tracking-widest">Install Desktop/Mobile App</span>
+                     </button>
+                    )}
+                  </div>
                 )}
                 {activeTab === 'bible' && <BiblePage initialReference={bibleRef} />}
                 {activeTab === 'assistant' && <AssistantPage />}

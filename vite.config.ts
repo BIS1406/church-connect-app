@@ -14,8 +14,8 @@ export default defineConfig(({mode}) => {
         registerType: 'autoUpdate',
         includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
         manifest: {
-          name: 'Church Connect',
-          short_name: 'Church',
+          name: 'Easy service',
+          short_name: 'Easy Service',
           description: 'A modern, mobile-friendly church helper app featuring sermon notes, announcements, prayer requests, and contact info.',
           theme_color: '#4f46e5',
           background_color: '#ffffff',
